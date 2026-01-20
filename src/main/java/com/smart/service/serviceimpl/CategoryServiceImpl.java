@@ -20,7 +20,7 @@ import java.util.List;
 @RequiredArgsConstructor
 
 public class CategoryServiceImpl implements CategoryService {
-
+     // This is dependency injection
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
 
