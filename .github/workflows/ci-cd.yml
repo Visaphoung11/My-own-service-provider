@@ -2,7 +2,7 @@ name: CI/CD Spring Boot Docker
 
 on:
   push:
-    branches: [ main, develop, staging ] # Trigger on these branches
+    branches: [ main, develop, staging ]
   pull_request:
     branches: [ main ]
 
@@ -22,10 +22,16 @@ jobs:
       - name: Build and Test
         run: mvn clean package
         env:
-          # Pass secrets so tests can run if they need a DB context
+          # Mapping ALL variables required by your application.properties
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_PORT: 5432
           DB_NAME: ${{ secrets.DB_NAME }}
           DB_USERNAME: ${{ secrets.DB_USERNAME }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          EXPIRATION: ${{ secrets.EXPIRATION }}
+          # This disables the Docker Compose support during tests to avoid errors
+          SPRING_DOCKER_COMPOSE_ENABLED: false
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -41,15 +47,14 @@ jobs:
         with:
           context: .
           push: true
-          # Tags the image with 'latest' and the unique commit hash
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/service-provider:latest
             ${{ secrets.DOCKER_USERNAME }}/service-provider:${{ github.sha }}
 
   deploy:
-    needs: build-and-test # Only deploy if build/test passes
+    needs: build-and-test
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' # Only deploy from main branch
+    if: github.ref == 'refs/heads/main'
     steps:
       - name: Deploy to Render
         run: curl ${{ secrets.RENDER_DEPLOY_HOOK }}
