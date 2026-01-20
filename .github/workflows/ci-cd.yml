@@ -30,7 +30,7 @@ jobs:
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
           EXPIRATION: ${{ secrets.EXPIRATION }}
-          # This disables the Docker Compose support during tests to avoid errors
+          # This disables the Docker Compose support during tests to avoid errors and staff
           SPRING_DOCKER_COMPOSE_ENABLED: false
 
       - name: Set up Docker Buildx
@@ -48,8 +48,8 @@ jobs:
           context: .
           push: true
           tags: |
-            ${{ secrets.DOCKER_USERNAME }}/service-provider:latest
-            ${{ secrets.DOCKER_USERNAME }}/service-provider:${{ github.sha }}
+            ${{ secrets.DOCKER_USERNAME }}/service-provider:latest 
+            ${{ secrets.DOCKER_USERNAME }}/service-provider:${{ github.sha }} 
 
   deploy:
     needs: build-and-test
