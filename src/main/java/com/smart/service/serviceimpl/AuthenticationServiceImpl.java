@@ -49,7 +49,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public APIsResponse<UserEntity> register(RegisterUserRequest registerDto) {
         // 1. Check duplicate email
         if (userRepository.existsByEmail(registerDto.getEmail())) {
-            throw new BadRequestException("User with this email already exists"); // <<< NEW
+            throw new BadRequestException("User with this email already exists");
         }
 
         // 2. Build user
