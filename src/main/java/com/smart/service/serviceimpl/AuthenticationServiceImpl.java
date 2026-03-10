@@ -30,6 +30,7 @@ import jakarta.transaction.Transactional;
 // This is the service implement
 @Service
 public class AuthenticationServiceImpl implements AuthenticationService {
+    // Dependency injections
     private final UserRepository userRepository;
     private final JwtService jwtService;
     private final RoleRepository roleRepository;
