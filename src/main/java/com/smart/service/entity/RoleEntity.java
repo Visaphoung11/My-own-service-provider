@@ -13,8 +13,9 @@ public class RoleEntity {
     private Long id;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, unique = true)
-    private enums name; // This field name determines the getter: getRole()
+    // We explicitly define the check constraint here to include DRIVER
+    @Column(nullable = false, unique = true, columnDefinition = "varchar(255) check (name in ('ADMIN', 'USER', 'DRIVER'))")
+    private enums name;
 
     private String description;
 }
