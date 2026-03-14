@@ -30,8 +30,8 @@ public class RoleSeeder implements ApplicationListener<ContextRefreshedEvent> {
 
         Map<enums, String> roleDescriptionMap = Map.of(
                 enums.ADMIN, "Administrator role with full access",
-                enums.USER, "Standard user role for browsing",
-                enums.DRIVER, "Driver role for giving services"
+                enums.USER, "Standard user role for browsing"
+//                enums.DRIVER, "Driver role for giving services"
         );
 
         Arrays.stream(roleNames).forEach((roleName) -> {
