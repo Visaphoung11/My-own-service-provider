@@ -47,5 +47,5 @@ public class RoleSeeder implements ApplicationListener<ContextRefreshedEvent> {
                 System.out.println("Role already exists: " + roleName);
             }
         });
-    }
+    } //
 }
