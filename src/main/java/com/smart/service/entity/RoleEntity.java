@@ -3,8 +3,12 @@ package com.smart.service.entity;
 import com.smart.service.enums.enums;
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.Check;
+
 @Entity
 @Table(name = "roles")
+@Check(constraints = "name IN ('ADMIN', 'USER', 'DRIVER')") // <-- Add this
+
 @Data
 public class RoleEntity {
     @Id
@@ -17,4 +21,3 @@ public class RoleEntity {
 
     private String description;
 }
-
