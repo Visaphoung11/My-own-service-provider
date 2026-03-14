@@ -23,7 +23,7 @@ public class CategoryEntity {
     private String name;
     private String description;
     @ManyToOne(fetch = FetchType.LAZY) // One ADMIN user can create many categories
-    @JoinColumn(name = "user_id", nullable = false) // Each category belongs to one user
+    @JoinColumn(name = "user_id", nullable = true) // Each category belongs to one user
     @JsonIgnore   // IMPORTANT to avoid serialization loop
     private UserEntity users;
 

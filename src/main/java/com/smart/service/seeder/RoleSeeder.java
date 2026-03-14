@@ -43,6 +43,11 @@ public class RoleSeeder implements ApplicationListener<ContextRefreshedEvent> {
                 roleToCreate.setDescription(roleDescriptionMap.get(roleName));
                 roleRepository.save(roleToCreate);
                 System.out.println("Seeded role: " + roleName);
+                System.out.println("Saving role:");
+                System.out.println("  enum instance  : " + roleName);
+                System.out.println("  enum.name()    : " + roleName.name());
+                System.out.println("  enum.toString(): " + roleName.toString());
+                System.out.println("  enum.ordinal() : " + roleName.ordinal());
             } else {
                 System.out.println("Role already exists: " + roleName);
             }
