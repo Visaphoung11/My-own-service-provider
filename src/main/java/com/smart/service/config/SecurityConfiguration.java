@@ -2,6 +2,7 @@ package com.smart.service.config;
 
 import com.smart.service.filter.JwtAuthenticationFilter;
 import com.smart.service.security.OAuth2SuccessHandler;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -20,9 +21,10 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
+import java.util.List;
 
 @Configuration
-@EnableMethodSecurity // <--- Add this to enable @PreAuthorize
+@EnableMethodSecurity
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfiguration {
@@ -36,7 +38,11 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-        http.csrf(AbstractHttpConfigurer::disable)
+        http
+                // CHANGE 1: Enable CORS with default settings (it will find your CorsConfig bean)
+                .cors(cors -> cors.configure(http))
+
+                .csrf(AbstractHttpConfigurer::disable)
 
                 .authorizeHttpRequests(request -> request
                         .requestMatchers(
@@ -53,13 +59,13 @@ public class SecurityConfiguration {
                         .anyRequest().authenticated()
                 )
 
-                // enable OAuth2 login
                 .oauth2Login(oauth -> oauth
-                        .successHandler(oAuth2SuccessHandler) // your handler
+                        .successHandler(oAuth2SuccessHandler)
                 )
 
+                // CHANGE 2: Set to STATELESS if you want to strictly use your JWT Cookie
                 .sessionManagement(manager -> manager
-                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
                 .authenticationProvider(authenticationProvider)
 
@@ -68,28 +74,29 @@ public class SecurityConfiguration {
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(jwtAuthenticationEntryPoint)
                         .accessDeniedHandler(jwtAccessDeniedHandler)
+                )
+
+                // CHANGE 3: Add Logout to clear the cookie
+                .logout(logout -> logout
+                        .logoutUrl("/api/v1/auth/logout")
+                        .deleteCookies("jwt_token") // This tells the browser to delete your cookie
+                        .logoutSuccessHandler((request, response, authentication) -> {
+                            response.setStatus(HttpServletResponse.SC_OK);
+                        })
                 );
 
         return http.build();
     }
-    // 2. ADD THIS BEAN TO CONFIGURE CORS
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-
-        // This allows your local development environment to call the Render API
-        configuration.setAllowedOrigins(Arrays.asList(
-                "http://localhost:5173", // Vite
-                "http://localhost:3000", // React
-                "http://127.0.0.1:5500"  // Live Server
-        ));
-
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept"));
-        configuration.setAllowCredentials(true); // Needed for JWT/Cookies
+        CorsConfiguration cfg = new CorsConfiguration();
+        cfg.setAllowedOrigins(List.of("http://localhost:5173")); // Your Vite URL
+        cfg.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        cfg.setAllowCredentials(true); // Must be true for cookies!
+        cfg.setAllowedHeaders(List.of("*"));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
+        source.registerCorsConfiguration("/**", cfg);
         return source;
     }
 }
