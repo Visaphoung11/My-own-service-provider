@@ -1,5 +1,5 @@
 package com.smart.service.security;
-
+import jakarta.servlet.http.Cookie;
 import com.smart.service.entity.RoleEntity;
 import com.smart.service.entity.UserEntity;
 import com.smart.service.enums.enums;
@@ -17,34 +17,27 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.Optional;
+
 @Component
 @RequiredArgsConstructor
 public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
-
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final JwtService jwtService;
 
     @Override
-    public void onAuthenticationSuccess(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            Authentication authentication
-    ) throws IOException {
+    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
+                                        Authentication authentication) throws IOException {
 
         OAuth2User oauthUser = (OAuth2User) authentication.getPrincipal();
-
         String email = oauthUser.getAttribute("email");
         String name = oauthUser.getAttribute("name");
 
-        Optional<UserEntity> optionalUser = Optional.ofNullable(userRepository.findByEmail(email));
+        // 1. Check if user exists
+        UserEntity user = userRepository.findByEmail(email);
 
-        UserEntity user;
-
-        if (optionalUser.isPresent()) {
-            user = optionalUser.get();
-        } else {
-
+        // 2. If user is null, we MUST create and SAVE them, then assign it back to 'user'
+        if (user == null) {
             RoleEntity userRole = roleRepository.findByName(enums.USER);
 
             user = UserEntity.builder()
@@ -55,13 +48,22 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
             user.addRole(userRole);
 
-            userRepository.save(user);
+            // CRITICAL: Re-assign the saved user so it is no longer null
+            user = userRepository.save(user);
         }
 
+        // 3. Generate Token (Now guaranteed that 'user' is not null)
         String token = jwtService.generateToken(user);
 
-        response.sendRedirect(
-                "http://localhost:5500/oauth-success.html?token=" + token
-        );
-    }
+        // 4. Create the Cookie
+        Cookie cookie = new Cookie("jwt_token", token);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(false);
+        cookie.setPath("/");
+        cookie.setMaxAge(86400);
+        response.addCookie(cookie);
+
+        // 5. Redirect to React Dashboard (or your local dev port)
+        // If using React, this is usually http://localhost:5173/dashboard
+        response.sendRedirect("http://localhost:5173/dashboard");    }
 }
