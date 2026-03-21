@@ -49,6 +49,9 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
                 // 1. Check if the user is trying to CONNECT
                 if (StompCommand.CONNECT.equals(accessor.getCommand())) {
+
+                    if (accessor.getUser() != null) return message;
+
                     // 2. Extract Authorization Header
                     String authHeader = accessor.getFirstNativeHeader("Authorization");
 
@@ -56,7 +59,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                         String token = authHeader.substring(7);
                         String username = jwtService.extractUserName(token);
 
-                        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                        if (username != null && accessor.getUser() == null) {
+
                             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
                             if (jwtService.isTokenValid(token, userDetails)) {

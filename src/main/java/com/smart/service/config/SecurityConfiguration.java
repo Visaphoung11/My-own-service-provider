@@ -95,8 +95,8 @@ public class SecurityConfiguration {
         CorsConfiguration cfg = new CorsConfiguration();
 
 
-        cfg.setAllowedOrigins(List.of("http://localhost:5173")); // Your Vite URL
-        cfg.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        cfg.setAllowedOrigins(List.of("http://localhost:5173", "http://localhost:5174", "http://localhost:5175")); // Your Vite URL
+        cfg.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         cfg.setAllowCredentials(true); // Must be true for cookies!
         cfg.setAllowedHeaders(List.of("*"));
 
