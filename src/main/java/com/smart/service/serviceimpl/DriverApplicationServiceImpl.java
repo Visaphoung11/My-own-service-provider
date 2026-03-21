@@ -94,7 +94,21 @@ public class DriverApplicationServiceImpl implements DriverApplicationService {
         DriverApplicationEntity app = applicationRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Application not found"));
 
+        if (app.getStatus() != ApplicationStatus.PENDING) {
+            throw new RuntimeException("Application is already " + app.getStatus());
+        }
+
         app.setStatus(ApplicationStatus.REJECTED);
         applicationRepository.save(app);
+
+        UserEntity user = app.getUser();
+
+        // this line is missing right now
+        notificationService.createAndSend(
+                user,
+                "Application Rejected",
+                "Your driver application was rejected. Please review your details and apply again."
+        );
     }
+
 }
