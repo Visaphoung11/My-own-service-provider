@@ -66,8 +66,24 @@ public class TripServiceImpl implements TripService {
             throw new RuntimeException("Cannot edit trip: Seats already booked.");
         }
 
-        // 🛡️ Use Mapper to update the existing entity
+        //  Use Mapper to update the existing entity
         tripMapper.updateEntityFromRequest(request, trip);
+        // Apply category update (mapper ignores category)
+        if (request.categoryId() != null) {
+            trip.setCategory(categoryRepository.findById(request.categoryId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Category not found")));
+        }
+
+        // Apply image update (mapper currently ignores images)
+        if (request.imageUrls() != null) {
+            trip.getImages().clear(); // orphanRemoval=true removes old image rows
+
+            List<TripImageEntity> newImages = tripMapper.mapUrlsToEntities(request.imageUrls());
+            newImages.forEach(img -> img.setTrip(trip)); // IMPORTANT back-reference
+
+            trip.getImages().addAll(newImages);
+        }
+
 
         return tripMapper.toResponse(tripRepository.save(trip));
     }
