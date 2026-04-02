@@ -8,6 +8,7 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface BookingMapper {
     @Mapping(source = "passenger.fullName", target = "passengerName")
-    @Mapping(source = "passenger.contactNumber", target = "passengerPhone")    @Mapping(source = "trip.driver.fullName", target = "trip.driverName")
+    @Mapping(source = "passenger.contactNumber", target = "passengerPhone")
+    @Mapping(source = "trip.driver.fullName", target = "trip.driverName")
     BookingResponse toResponse(BookingEntity entity);
 }
