@@ -25,7 +25,7 @@ import java.util.List;
 @Transactional
 public class DriverApplicationServiceImpl implements DriverApplicationService {
 
-        // Dependency injections
+    // Dependency injections
     private final NotificationService notificationService;
     private final DriverApplicationRepository applicationRepository;
     private final UserRepository userRepository;
@@ -87,8 +87,7 @@ public class DriverApplicationServiceImpl implements DriverApplicationService {
         notificationService.createAndSend(
                 user,
                 "Application Approved!",
-                "Congratulations! You are now a verified Driver on Soksabay-GO."
-        );
+                "Congratulations! You are now a verified Driver on Soksabay-GO.");
     }
 
     @Override
@@ -103,8 +102,8 @@ public class DriverApplicationServiceImpl implements DriverApplicationService {
 
         // 1. Update Status and the "Why"
         app.setStatus(ApplicationStatus.REJECTED);
-        app.setRejectionReason(reason); // 👈 From your new field
-        app.setReviewedAt(java.time.LocalDateTime.now()); // 👈 Track when it happened
+        app.setRejectionReason(reason); // From my new field
+        app.setReviewedAt(java.time.LocalDateTime.now()); // Track when it happened
 
         applicationRepository.save(app);
 
@@ -112,8 +111,7 @@ public class DriverApplicationServiceImpl implements DriverApplicationService {
         notificationService.createAndSend(
                 app.getUser(),
                 "Application Rejected",
-                "Reason: " + reason + ". You can review your details and reapply."
-        );
+                "Reason: " + reason + ". You can review your details and reapply.");
     }
 
     @Override

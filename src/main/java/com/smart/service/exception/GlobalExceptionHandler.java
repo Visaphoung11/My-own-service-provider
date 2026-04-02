@@ -1,4 +1,5 @@
 package com.smart.service.exception;
+
 import com.smart.service.dtoResponse.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -6,9 +7,6 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-
-
-import lombok.Builder;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,6 +24,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleUnauthorized(UnauthorizedException ex) {
         return buildErrorResponse(HttpStatus.UNAUTHORIZED, ex.getMessage());
     }
+
     @ExceptionHandler(ConflictException.class)
     public ResponseEntity<ErrorResponse> handleConflict(ConflictException ex) {
         return buildErrorResponse(HttpStatus.CONFLICT, ex.getMessage());
@@ -39,6 +38,7 @@ public class GlobalExceptionHandler {
         body.put("timestamp", System.currentTimeMillis());
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(body);
     }
+
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<Map<String, Object>> handleAccessDenied(AccessDeniedException ex) {
         Map<String, Object> body = new HashMap<>();
@@ -47,16 +47,18 @@ public class GlobalExceptionHandler {
         body.put("timestamp", System.currentTimeMillis());
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(body);
     }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationException(MethodArgumentNotValidException ex) {
         // Get the first field error (you can also collect all if you want)
         FieldError fieldError = ex.getBindingResult().getFieldError();
         String message = fieldError != null
-                ? fieldError.getDefaultMessage()  // e.g., "must be less than or equal to 5"
+                ? fieldError.getDefaultMessage() // e.g., "must be less than or equal to 5"
                 : "Validation failed";
 
         return buildErrorResponse(HttpStatus.BAD_REQUEST, message);
     }
+
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleNotFound(ResourceNotFoundException ex) {
         return buildErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage());

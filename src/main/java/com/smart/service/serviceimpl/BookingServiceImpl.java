@@ -15,7 +15,7 @@ import com.smart.service.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import com.smart.service.enums.TripStatus;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -43,12 +43,12 @@ public class BookingServiceImpl implements BookingService {
             throw new RuntimeException("Insufficient seats available!");
         }
 
-        // Prevent passenger from booking the same trip twice if they already have an active booking
+        // Prevent passenger from booking the same trip twice if they already have an
+        // active booking
         boolean alreadyBooked = bookingRepository.existsByPassengerIdAndTripIdAndStatusIn(
-                passenger.getId(), 
-                trip.getId(), 
-                List.of(BookingStatus.PENDING, BookingStatus.CONFIRMED)
-        );
+                passenger.getId(),
+                trip.getId(),
+                List.of(BookingStatus.PENDING, BookingStatus.CONFIRMED));
         if (alreadyBooked) {
             throw new RuntimeException("You already booked this trip.");
         }
@@ -106,7 +106,7 @@ public class BookingServiceImpl implements BookingService {
                     trip.getDriver().getId(), start, end, trip.getId());
 
             for (TripEntity overlap : overlappingTrips) {
-                overlap.setStatus(com.smart.service.enums.TripStatus.CANCELLED);
+                overlap.setStatus(TripStatus.CANCELLED);
             }
             if (!overlappingTrips.isEmpty()) {
                 tripRepository.saveAll(overlappingTrips);
@@ -116,8 +116,7 @@ public class BookingServiceImpl implements BookingService {
             notificationService.createAndSend(
                     passenger,
                     "Booking Confirmed!",
-                    "Your booking for trip '" + trip.getTitle() + "' has been accepted by the driver."
-            );
+                    "Your booking for trip '" + trip.getTitle() + "' has been accepted by the driver.");
         } else {
             booking.setStatus(BookingStatus.REJECTED);
             booking.setRejectionReason(reason);

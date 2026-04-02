@@ -1,5 +1,6 @@
 package com.smart.service.repository;
 
+import com.smart.service.enums.BookingStatus;
 import com.smart.service.entity.BookingEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -16,7 +17,7 @@ public interface BookingRepository extends JpaRepository<BookingEntity, Long> {
     @Query("SELECT b FROM BookingEntity b JOIN FETCH b.trip t WHERE t.driver.id = :driverId AND b.status = com.smart.service.enums.BookingStatus.PENDING")
     List<BookingEntity> findPendingRequestsByDriverId(@Param("driverId") Long driverId);
 
-    boolean existsByPassengerIdAndTripIdAndStatus(Long passengerId, Long tripId, com.smart.service.enums.BookingStatus status);
+    boolean existsByPassengerIdAndTripIdAndStatus(Long passengerId, Long tripId, BookingStatus status);
 
-    boolean existsByPassengerIdAndTripIdAndStatusIn(Long passengerId, Long tripId, List<com.smart.service.enums.BookingStatus> statuses);
+    boolean existsByPassengerIdAndTripIdAndStatusIn(Long passengerId, Long tripId, List<BookingStatus> statuses);
 }
