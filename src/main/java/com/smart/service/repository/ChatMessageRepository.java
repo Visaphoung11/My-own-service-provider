@@ -24,4 +24,9 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessageEntity, 
 
     @Query("SELECT DISTINCT m.sender FROM ChatMessageEntity m WHERE m.recipient.id = :userId")
     List<UserEntity> findSendersByRecipientId(@Param("userId") Long userId);
+
+    @Query("SELECT MAX(m.timestamp) FROM ChatMessageEntity m " +
+           "WHERE (m.sender.id = :userId AND m.recipient.id = :otherUserId) OR " +
+           "(m.sender.id = :otherUserId AND m.recipient.id = :userId)")
+    java.time.LocalDateTime findLastMessageTime(@Param("userId") Long userId, @Param("otherUserId") Long otherUserId);
 }
