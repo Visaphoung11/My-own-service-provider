@@ -1,6 +1,7 @@
 package com.smart.service.config;
 
 import com.smart.service.filter.JwtAuthenticationFilter;
+import com.smart.service.filter.UserActivityFilter;
 import com.smart.service.security.OAuth2SuccessHandler;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
@@ -29,6 +30,7 @@ import java.util.List;
 public class SecurityConfiguration {
 
         private final JwtAuthenticationFilter jwtAuthFilter;
+        private final UserActivityFilter userActivityFilter;
         private final AuthenticationProvider authenticationProvider;
         private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
         private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
@@ -76,6 +78,7 @@ public class SecurityConfiguration {
                                 .authenticationProvider(authenticationProvider)
 
                                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                                .addFilterAfter(userActivityFilter, JwtAuthenticationFilter.class)
 
                                 .exceptionHandling(ex -> ex
                                                 .authenticationEntryPoint(jwtAuthenticationEntryPoint)

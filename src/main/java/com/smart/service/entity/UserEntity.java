@@ -1,6 +1,7 @@
 package com.smart.service.entity;
 
 import java.io.Serial;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -51,6 +52,12 @@ public class UserEntity implements UserDetails {
     @Column(name = "profile_image")
     private String profileImage;
     private String status; // e.g., "ACTIVE", "INACTIVE"
+
+    @Column(name = "is_online")
+    private Boolean isOnline;
+
+    @Column(name = "last_active_at")
+    private LocalDateTime lastActiveAt;
 
     // Many-to-Many relationship with the 'role' table via 'user_role' join table
     @ManyToMany(fetch = FetchType.EAGER)

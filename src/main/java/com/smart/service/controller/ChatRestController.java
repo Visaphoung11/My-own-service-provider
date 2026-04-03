@@ -1,6 +1,7 @@
 package com.smart.service.controller;
 
 import com.smart.service.dtoResponse.ChatMessageResponse;
+import com.smart.service.dtoResponse.ConversationResponse;
 import com.smart.service.dtoResponse.UserProfileResponse;
 import com.smart.service.entity.UserEntity;
 import com.smart.service.service.ChatService;
@@ -26,7 +27,7 @@ public class ChatRestController {
     }
 
     @GetMapping("/conversations")
-    public ResponseEntity<List<UserProfileResponse>> getMyConversations(@AuthenticationPrincipal UserEntity currentUser) {
+    public ResponseEntity<List<ConversationResponse>> getMyConversations(@AuthenticationPrincipal UserEntity currentUser) {
         return ResponseEntity.ok(chatService.getMyConversations(currentUser.getId()));
     }
 }

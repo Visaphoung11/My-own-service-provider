@@ -2,6 +2,7 @@ package com.smart.service.serviceimpl;
 
 import com.smart.service.dtoRequest.ChatMessageRequest;
 import com.smart.service.dtoResponse.ChatMessageResponse;
+import com.smart.service.dtoResponse.ConversationResponse;
 import com.smart.service.dtoResponse.UserProfileResponse;
 import com.smart.service.entity.ChatMessageEntity;
 import com.smart.service.entity.UserEntity;
@@ -46,6 +47,11 @@ public class ChatServiceImpl implements ChatService {
                 .build();
 
         ChatMessageEntity saved = chatMessageRepository.save(entity);
+        
+        // Update lastActiveAt for both
+        userRepository.updateLastActiveByEmail(senderEmail, LocalDateTime.now());
+        userRepository.updateLastActiveByEmail(recipient.getEmail(), LocalDateTime.now());
+        
         return mapToResponse(saved);
     }
 
@@ -60,7 +66,7 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     @Transactional
-    public List<UserProfileResponse> getMyConversations(Long userId) {
+    public List<ConversationResponse> getMyConversations(Long userId) {
         List<UserEntity> recipients = chatMessageRepository.findRecipientsBySenderId(userId);
         List<UserEntity> senders = chatMessageRepository.findSendersByRecipientId(userId);
         
@@ -68,7 +74,24 @@ public class ChatServiceImpl implements ChatService {
         participants.addAll(senders);
         
         return participants.stream()
-                .map(userMapper::toResponse)
+                .map(user -> {
+                    LocalDateTime lastMessageTime = chatMessageRepository.findLastMessageTime(userId, user.getId());
+                    
+                    // Offline if lastActiveAt is > 5 mins ago
+                    boolean effectivelyOnline = Boolean.TRUE.equals(user.getIsOnline()) && 
+                            user.getLastActiveAt() != null && 
+                            user.getLastActiveAt().isAfter(LocalDateTime.now().minusMinutes(5));
+
+                    return ConversationResponse.builder()
+                            .userId(user.getId())
+                            .email(user.getEmail())
+                            .fullName(user.getFullName())
+                            .profileImage(user.getProfileImage())
+                            .lastMessageTime(lastMessageTime != null ? lastMessageTime.toString() : null)
+                            .isOnline(effectivelyOnline)
+                            .lastActiveAt(user.getLastActiveAt() != null ? user.getLastActiveAt().toString() : null)
+                            .build();
+                })
                 .collect(Collectors.toList());
     }
 
