@@ -59,10 +59,10 @@ jobs:
             ${{ secrets.DOCKER_USERNAME }}/booking-tour-app:latest
             ${{ secrets.DOCKER_USERNAME }}/booking-tour-app:${{ github.sha }} 
 
-  deploy:
-    needs: build-and-push
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-    steps:
-      - name: Deploy to Render
-        run: curl ${{ secrets.RENDER_DEPLOY_HOOK }}
+#  deploy:
+#    needs: build-and-push
+#    runs-on: ubuntu-latest
+#    if: github.ref == 'refs/heads/main'
+#    steps:
+#      - name: Deploy to Render
+#        run: curl ${{ secrets.RENDER_DEPLOY_HOOK }}
